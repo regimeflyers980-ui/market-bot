@@ -1,6 +1,8 @@
+mod backtest;
 mod pnl;
 mod risk;
 
+use backtest::{synthetic_candles, Backtest, SmaCross};
 use pnl::{Position, PositionSide};
 use risk::{RiskDecision, RiskLimits, RiskManager};
 use rust_decimal_macros::dec;
@@ -47,7 +49,7 @@ fn main() {
     println!("=== Risk check @ {} ===", current_price);
     println!(
         "Drawdown: {}%",
-        manager.current_drawdown_pct(dec!(1100))
+        manager.current_drawdown_pct(dec!(1100)).round_dp(2)
     );
 
     let decision = manager.evaluate(&position, current_price, 0, dec!(1100));
@@ -56,4 +58,24 @@ fn main() {
         RiskDecision::Resize(new_size) => println!("Decision: RESIZE to {}", new_size),
         RiskDecision::Reject(reason) => println!("Decision: REJECT — {}", reason),
     }
+
+    // ---- Backtest ----
+    println!();
+    println!("=== Backtest ===");
+    let candles = synthetic_candles(500);
+    let strategy = SmaCross::new(10, 30);
+    let backtest = Backtest::new(dec!(1000), dec!(1)).with_fees(dec!(0.001));
+    let result = backtest.run(&candles, strategy);
+
+    println!("Bars:            {}", candles.len());
+    println!("Trades:          {}", result.trades.len());
+    println!("Starting equity: {}", result.starting_equity);
+    println!("Final equity:    {}", result.final_equity.round_dp(2));
+    println!("Total PnL:       {}", result.total_pnl().round_dp(2));
+    println!("Return:          {}%", result.total_return_pct().round_dp(2));
+    println!("Peak equity:     {}", result.peak_equity.round_dp(2));
+    println!("Max drawdown:    {}%", result.max_drawdown_pct.round_dp(2));
+    println!("Win rate:        {}%", result.win_rate_pct().round_dp(2));
+    println!("Profit factor:   {}", result.profit_factor().round_dp(2));
+    println!("Sharpe (raw):    {}", result.sharpe().round_dp(3));
 }
