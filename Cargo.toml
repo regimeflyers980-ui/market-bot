@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-rust_decimal = { version = "1", features = ["serde-str"] }
+rust_decimal = { version = "1", features = ["serde-str", "maths"] }
 rust_decimal_macros = "1"
 serde = { version = "1", features = ["derive"] }

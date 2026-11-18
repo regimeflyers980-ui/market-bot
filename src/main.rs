@@ -78,4 +78,32 @@ fn main() {
     println!("Win rate:        {}%", result.win_rate_pct().round_dp(2));
     println!("Profit factor:   {}", result.profit_factor().round_dp(2));
     println!("Sharpe (raw):    {}", result.sharpe().round_dp(3));
+    
+    println!();
+    println!("First 3 candles:");
+    for c in &candles[..3] {
+        println!(
+            "  t={} O={} H={} L={} C={} V={}",
+            c.timestamp, c.open, c.high, c.low, c.close, c.volume
+        );
+    }
+
+    println!();
+    println!("Trade log (first 5):");
+    for (i, t) in result.trades.iter().take(5).enumerate() {
+        let outcome = if t.is_win() { "WIN " } else { "LOSS" };
+        //          #{}   {}         entry={}       exit={}        size={}        pnl={}
+        //           │    │            │               │              │              │
+        //           i+1  outcome    entry_price    exit_price       size           pnl
+     println!(
+        "  #{} {} entry={} exit={} size={} pnl={}",
+        i + 1,
+        outcome,
+        t.entry_price.round_dp(2),
+        t.exit_price.round_dp(2),
+        t.size.round_dp(4),
+        t.pnl.round_dp(2),
+    );
+}
+
 }
