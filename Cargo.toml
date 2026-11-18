@@ -5,3 +5,6 @@ edition = "2024"
 
 [dependencies]
 reqwest = { version = "0.12", features = ["rustls-tls", "json"], default-features = false }
+rust_decimal = { version = "1", features = ["serde-str"] }
+rust_decimal_macros = "1"
+serde = { version = "1", features = ["derive"] }
